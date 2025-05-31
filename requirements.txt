@@ -1,0 +1,6 @@
+Pillow
+numpy
+gradio
+loguru
+opencv-python
+py360convert
