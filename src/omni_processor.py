@@ -4,7 +4,7 @@ from pathlib import Path
 from tqdm import tqdm
 import py360convert
 from loguru import logger
-import tempfile
+
 
 class OmniVideoProcessor:
     def __init__(self, params=None):
@@ -22,7 +22,7 @@ class OmniVideoProcessor:
                 "pitch_0_yaw_0": (0, 0),
                 "pitch_0_yaw_60": (0, 60),
                 "pitch_0_yaw_300": (0, 300),
-            }
+            },
         }
 
     def set_params(self, params):
@@ -71,21 +71,28 @@ class OmniVideoProcessor:
         """Generate pinhole images from panorama frames"""
         output_pinhole_dir = output_dir / "pinhole_images" / "images"
         output_pinhole_dir.mkdir(parents=True, exist_ok=True)
-        output_pinhole_parameters_file = output_pinhole_dir.parent / "camera_params.json"
-        
+        output_pinhole_parameters_file = (
+            output_pinhole_dir.parent / "camera_params.json"
+        )
+
         pinhole_images = []
         pinhole_camera_params = []
-        
+
         for pano_idx, pano_image in enumerate(pano_images):
             for view_name, (pitch, yaw) in self.params["views"].items():
                 pinhole_image = self._convert_to_pinhole(pano_image, pitch, yaw)
-                save_path = output_pinhole_dir / f"pinhole_{pano_idx:04d}_{view_name}.jpg"
+                save_path = (
+                    output_pinhole_dir / f"pinhole_{pano_idx:04d}_{view_name}.jpg"
+                )
                 cv2.imwrite(str(save_path), pinhole_image)
-                
+
                 pinhole_images.append((pano_idx, view_name, pinhole_image))
                 pinhole_camera_params.append(
-                    self._create_camera_params(save_path, pano_idx, view_name, pitch, yaw))
-        
+                    self._create_camera_params(
+                        save_path, pano_idx, view_name, pitch, yaw
+                    )
+                )
+
         self._save_camera_params(pinhole_camera_params, output_pinhole_parameters_file)
         return pinhole_images
 
@@ -101,7 +108,7 @@ class OmniVideoProcessor:
             mode="bilinear",
         )
 
-    def _create_camera_params(self, save_path:Path, pano_idx, view_name, pitch, yaw):
+    def _create_camera_params(self, save_path: Path, pano_idx, view_name, pitch, yaw):
         """Create camera parameters dictionary"""
         return {
             "image_name": save_path.name,
