@@ -10,10 +10,13 @@ class OmniConverterUI:
     def __init__(self):
         self.processor = OmniVideoProcessor()
         self.default_params = self.processor.params.copy()
+        self.max_gallery_items = 20
 
     def create_interface(self):
         """Create Gradio interface"""
-        with gr.Blocks(title="Omnidirectional Video to Pinhole Converter") as demo:
+        with gr.Blocks(
+            title="Omnidirectional Video to Pinhole Converter"
+        ) as demo:
             gr.Markdown("## Omnidirectional Video to Pinhole Converter")
 
             with gr.Row():
@@ -37,21 +40,35 @@ class OmniConverterUI:
                     # Pinhole camera settings
                     with gr.Accordion("Pinhole Parameters", open=True):
                         with gr.Row():
-                            focal_length_x = gr.Slider(
-                                50,
-                                1000,
-                                value=self.default_params["focal_length_x"],
-                                label="Focal Length X",
+                            image_width = gr.Slider(
+                                100,
+                                2000,
+                                value=self.default_params["width"],
+                                label="Image Width",
                                 interactive=True,
                             )
-                            focal_length_y = gr.Slider(
-                                50,
-                                1000,
-                                value=self.default_params["focal_length_y"],
-                                label="Focal Length Y",
+                            image_height = gr.Slider(
+                                100,
+                                2000,
+                                value=self.default_params["height"],
+                                label="Image Height",
                                 interactive=True,
                             )
-
+                        with gr.Row():
+                            cx = gr.Slider(
+                                50,
+                                1000,
+                                value=self.default_params["cx"],
+                                label="Principal Point X",
+                                interactive=True,
+                            )
+                            cy = gr.Slider(
+                                50,
+                                1000,
+                                value=self.default_params["cy"],
+                                label="Principal Point Y",
+                                interactive=True,
+                            )
                         with gr.Row():
                             fov_h = gr.Slider(
                                 30,
@@ -67,56 +84,46 @@ class OmniConverterUI:
                                 label="Vertical FOV (deg)",
                                 interactive=True,
                             )
-
                         with gr.Row():
-                            principal_point_x = gr.Slider(
+                            fx = gr.Slider(
                                 50,
                                 1000,
-                                value=self.default_params["principal_point_x"],
-                                label="Principal Point X",
+                                value=self.default_params["fx"],
+                                label="Focal Length X",
                                 interactive=True,
                             )
-                            principal_point_y = gr.Slider(
+                            fy = gr.Slider(
                                 50,
                                 1000,
-                                value=self.default_params["principal_point_y"],
-                                label="Principal Point Y",
-                                interactive=True,
-                            )
-
-                        with gr.Row():
-                            image_width = gr.Slider(
-                                100,
-                                2000,
-                                value=self.default_params["width"],
-                                label="Image Width",
-                                interactive=True,
-                            )
-                            image_height = gr.Slider(
-                                100,
-                                2000,
-                                value=self.default_params["height"],
-                                label="Image Height",
+                                value=self.default_params["fy"],
+                                label="Focal Length Y",
                                 interactive=True,
                             )
 
                     # View selection
                     with gr.Accordion("Custom View editions", open=False):
                         with gr.Row():
-                            custom_pitch = gr.Slider(value=0, label="Custom Pitch")
-                            custom_yaw = gr.Slider(value=0, label="Custom Yaw")
+                            custom_pitch = gr.Slider(
+                                -90, 90, value=0, label="Custom Pitch"
+                            )
+                            custom_yaw = gr.Slider(
+                                -180, 180, value=0, label="Custom Yaw"
+                            )
                         add_custom = gr.Button("Add Custom View")
 
                 with gr.Column():
                     # Results display
                     output_gallery = gr.Gallery(
                         label="Generated Pinhole Images",
-                        columns=len(self.default_params["views"]),  # <--- 使用初始值
+                        columns=len(
+                            self.default_params["views"]
+                        ),  # Use initial value
                         object_fit="contain",
                         height="auto",
                     )
                     view_state_display = gr.JSON(
-                        label="Current Views", value=self.default_params["views"].copy()
+                        label="Current Views",
+                        value=self.default_params["views"].copy(),
                     )
 
             # Initialize views state
@@ -134,10 +141,10 @@ class OmniConverterUI:
                 inputs=[
                     video_input,
                     frame_interval,
-                    focal_length_x,
-                    focal_length_y,
-                    principal_point_x,
-                    principal_point_y,
+                    fx,
+                    fy,
+                    cx,
+                    cy,
                     image_width,
                     image_height,
                     fov_h,
@@ -158,10 +165,10 @@ class OmniConverterUI:
         """Run conversion with progress tracking"""
         param_names = [
             "frame_interval",
-            "focal_length_x",
-            "focal_length_y",
-            "principal_point_x",
-            "principal_point_y",
+            "fx",
+            "fy",
+            "cx",
+            "cy",
             "width",
             "height",
             "fov_h",
@@ -174,7 +181,9 @@ class OmniConverterUI:
 
         output_dir = Path.cwd() / "outputs" / time.strftime("%Y%m%d%H%M%S")
         output_dir.mkdir(parents=True, exist_ok=True)
-        pinhole_images = self.processor.process_video(video_file.name, output_dir)
+        pinhole_images = self.processor.process_video(
+            video_file.name, output_dir
+        )
 
         image_list_for_gallery = [
             (
@@ -182,7 +191,9 @@ class OmniConverterUI:
                 f"Frame {img[0]}, View: {img[1]}",
             )
             for img in pinhole_images
-        ]
+        ][: self.max_gallery_items]
+        if not image_list_for_gallery:
+            return gr.update(value=[], visible=False)
         return gr.update(
             columns=len(params_dict["views"]), value=image_list_for_gallery
         )

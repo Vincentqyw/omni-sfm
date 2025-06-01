@@ -2,5 +2,6 @@ Pillow
 numpy
 gradio
 loguru
+scipy
 opencv-python
 py360convert
