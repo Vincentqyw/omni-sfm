@@ -4,3 +4,4 @@ data/*
 .gradio
 gradio_omni_converter.py
 .DS_Store
+process_pano_sfm.py
