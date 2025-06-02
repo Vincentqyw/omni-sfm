@@ -38,14 +38,14 @@ pip install -r requirements.txt
 
 ### Additional Setup
 1. For command-line COLMAP:
-   ```bash
-   # Follow COLMAP installation instructions for your platform
-   ```
+
+   Follow COLMAP [installation instructions](https://colmap.github.io/install.html) for your platform.
+
 
 2. For ComfyUI integration:
-   ```bash
-   pip install comfyui
-   ```
+
+   Follow ComfyUI [installation instructions](https://github.com/comfyanonymous/ComfyUI) for your platform.
+
 
 ## Usage
 
