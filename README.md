@@ -1,6 +1,12 @@
-# Omni-SFM (WIP)
+#
+<p align="center">
+  <h1 align="center"><br><ins>Omni-SFM (WIP)</ins>
+  <br>Structure-from-Motion pipeline for omnidirectional imagery</h1>
+</p>
 
-> Structure-from-Motion pipeline for omnidirectional imagery
+<div align="center">
+  <a target="_blank" href='https://huggingface.co/spaces/Realcat/omni-sfm'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue'></a>
+</div>
 
 ## Table of Contents
 
