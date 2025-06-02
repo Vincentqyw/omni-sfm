@@ -1,4 +1,14 @@
-# Omni-SFM Project(WIP)
+# Omni-SFM ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+
+> Structure-from-Motion pipeline for omnidirectional imagery
+
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Development](#development)
+- [License](#license)
 
 ## Overview
 Omni-SFM is a Structure-from-Motion (SfM) pipeline implementation for omnidirectional imagery. The project provides tools for processing panoramic images and reconstructing 3D scenes using both command-line COLMAP and pycolmap implementations.
@@ -16,21 +26,28 @@ Omni-SFM is a Structure-from-Motion (SfM) pipeline implementation for omnidirect
 - COLMAP installed (for command-line version)
 - CUDA-enabled GPU recommended
 
-### Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/omni-sfm.git
-   cd omni-sfm
-   ```
+### Quick Start
+```bash
+# Clone repository
+git clone https://github.com/your-repo/omni-sfm.git
+cd omni-sfm
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+# Install with pip (recommended)
+pip install .
 
-3. Install COLMAP (if using command-line version):
+# Or install in development mode
+pip install -e .[dev]
+```
+
+### Additional Setup
+1. For command-line COLMAP:
    ```bash
    # Follow COLMAP installation instructions for your platform
+   ```
+
+2. For ComfyUI integration:
+   ```bash
+   pip install comfyui
    ```
 
 ## Usage
@@ -133,19 +150,32 @@ python scripts/run_pycolmap_rig_sfm.py \
 ```
 
 
-## Dependencies
-See `requirements.txt` for complete list. Main dependencies include:
-- pycolmap
-- OpenCV
-- NumPy
-- PyQt5 (for GUI)
+## Development
 
-## Contributing
+### Setup
+```bash
+# Install development dependencies
+pip install -e .[dev]
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+### Guidelines
+- Follow PEP 8 style guidelines
+- Use type hints where applicable
+- Include unit tests for new features
+- Update documentation when making changes
+
+### Testing
+```bash
+pytest tests/
+```
+
+### Contributing
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
-
-Please ensure all code follows PEP 8 guidelines and includes appropriate tests.
 
 ## License
 [MIT License](LICENSE)
