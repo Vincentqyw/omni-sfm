@@ -5,3 +5,4 @@ opencv-python
 Pillow
 py360convert
 scipy
+torch
