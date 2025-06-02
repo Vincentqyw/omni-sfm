@@ -167,10 +167,6 @@ pre-commit install
 - Include unit tests for new features
 - Update documentation when making changes
 
-### Testing
-```bash
-pytest tests/
-```
 
 ### Contributing
 1. Fork the repository
