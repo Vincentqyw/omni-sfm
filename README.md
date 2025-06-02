@@ -33,10 +33,7 @@ git clone https://github.com/your-repo/omni-sfm.git
 cd omni-sfm
 
 # Install with pip (recommended)
-pip install .
-
-# Or install in development mode
-pip install -e .[dev]
+pip install -r requirements.txt
 ```
 
 ### Additional Setup
@@ -62,15 +59,53 @@ Gradio UI:
 
 ![](assets/cover.jpg)
 
+Output data structure:
+
+``` bash
+outputs/20250602xxxxxx/pinhole_images
+├── images
+│   ├── pitch_-35_yaw_-90
+│   ├── pitch_-35_yaw_0
+│   ├── pitch_-35_yaw_180
+│   ├── pitch_-35_yaw_90
+│   ├── pitch_35_yaw_-90
+│   ├── pitch_35_yaw_0
+│   ├── pitch_35_yaw_180
+│   └── pitch_35_yaw_90
+├── camera_params.json
+└── rig_config.json
+```
+
+
 ### Scripts
 The project includes several scripts in the `scripts/` directory:
 
 1. **run_cmd_colmap_rig_sfm.py**
    Runs the SfM pipeline using command-line COLMAP with rig support.
 
-   Usage:
+   **Parameters:**
+   - `--image_path`: Path to input images directory (required)
+   - `--output_path`: Path to output directory (required)
+   - `--rig_config`: Path to rig configuration JSON file (required)
+   - `--camera_config`: Path to camera parameters JSON file (required)
+   - `--camera_model`: Camera model type (default: "PINHOLE", options: ["PINHOLE", "SIMPLE_PINHOLE", "SIMPLE_RADIAL"])
+   - `--visualize`: Flag to visualize the sparse reconstruction
+
+   **Usage Example:**
    ```bash
-   python scripts/run_cmd_colmap_rig_sfm.py [options]
+   python scripts/run_cmd_colmap_rig_sfm.py \
+       --image_path inputs/images \
+       --rig_config configs/rig.json \
+       --camera_config configs/camera.json \
+       --output_path outputs/sfm \
+       --visualize
+   # eg.
+   python scripts/run_cmd_colmap_rig_sfm.py \
+       --image_path outputs/20250602xxxxxx/pinhole_images/images \
+       --rig_config outputs/20250602xxxxxx/pinhole_images/rig.json \
+       --camera_config outputs/20250602xxxxxx/pinhole_images/camera.json \
+       --output_path outputs/20250602xxxxxx/sfm \
+       --visualize
    ```
 
 2. **run_pycolmap_rig_sfm.py**
@@ -139,33 +174,6 @@ UI:
    - Process video with OmniVideoProcessor
    - View results with OmniPreview
    - Run reconstruction with OmniReconstruction
-
-## Examples
-
-### Panoramic Reconstruction
-```bash
-python scripts/run_pycolmap_rig_sfm.py \
-  --image_dir ./data/images \
-  --output_dir ./output/reconstruction
-```
-
-
-## Development
-
-### Setup
-```bash
-# Install development dependencies
-pip install -e .[dev]
-
-# Install pre-commit hooks
-pre-commit install
-```
-
-### Guidelines
-- Follow PEP 8 style guidelines
-- Use type hints where applicable
-- Include unit tests for new features
-- Update documentation when making changes
 
 
 ### Contributing

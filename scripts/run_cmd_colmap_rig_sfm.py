@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import platform
@@ -12,16 +13,6 @@ def load_json_config(config_path):
     """Load JSON configuration file."""
     with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f)
-
-
-# --- Configuration ---
-WORKSPACE_PATH = Path("outputs/20250602010323")
-
-# Set COLMAP executable path
-if platform.system() == "Windows":
-    COLMAP_EXE = "colmap"
-else:
-    COLMAP_EXE = "colmap"
 
 
 def run_command(cmd_list):
@@ -79,7 +70,6 @@ def update_database_camera_model(database_path, camera_model="PINHOLE", camera_c
         )
         cam_key = os.path.join(cam["image_prefix"], cam["image_name"])
         camere_id = name_to_id.get(cam_key, 0)
-        # breakpoint()
         cursor.execute(
             "UPDATE cameras SET params = ? WHERE camera_id = ?",
             (params.tobytes(), camere_id),
@@ -90,13 +80,46 @@ def update_database_camera_model(database_path, camera_model="PINHOLE", camera_c
     logger.info(f"Updated camera model to '{camera_model}' in database '{database_path}'.")
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Run COLMAP pipeline with camera rig")
+    parser.add_argument(
+        "--image_path", type=str, required=True, help="Path to input images directory"
+    )
+    parser.add_argument("--output_path", type=str, required=True, help="Path to output directory")
+    parser.add_argument(
+        "--rig_config", type=str, required=True, help="Path to rig configuration JSON file"
+    )
+    parser.add_argument(
+        "--camera_config", type=str, required=True, help="Path to camera parameters JSON file"
+    )
+    parser.add_argument(
+        "--camera_model",
+        type=str,
+        default="PINHOLE",
+        choices=["PINHOLE", "SIMPLE_PINHOLE", "SIMPLE_RADIAL"],
+        help="Camera model type",
+    )
+    parser.add_argument(
+        "--visualize", action="store_true", help="Visualize the sparse reconstruction"
+    )
+    return parser.parse_args()
+
+
 def main():
     """Main function to run the COLMAP pipeline with a camera rig."""
-    image_path = WORKSPACE_PATH / "pinhole_images" / "images"
-    rig_config_path = WORKSPACE_PATH / "pinhole_images" / "rig_config.json"
-    camera_config_path = WORKSPACE_PATH / "pinhole_images" / "camera_params.json"
-    database_path = WORKSPACE_PATH / "sfm" / "database.db"
-    sparse_path = WORKSPACE_PATH / "sfm" / "sparse"
+    args = parse_args()
+
+    # Set COLMAP executable path
+    COLMAP_EXE = "colmap.exe" if platform.system() == "Windows" else "colmap"
+
+    # Setup paths
+    workspace = Path(args.output_path)
+    image_path = Path(args.image_path)
+    rig_config_path = Path(args.rig_config)
+    camera_config_path = Path(args.camera_config) if args.camera_config else None
+    database_path = workspace / "database.db"
+    sparse_path = workspace / "sparse"
 
     sparse_path.mkdir(exist_ok=True, parents=True)
 
@@ -106,8 +129,7 @@ def main():
         )
         return
 
-    camera_model = "PINHOLE"  # COLMAP supported camera model
-    camera_config = load_json_config(camera_config_path) if camera_config_path.exists() else None
+    camera_config = load_json_config(camera_config_path) if camera_config_path else None
 
     # --- 1. Feature Extraction ---
     logger.info("--- Step 1: Feature Extraction ---")
@@ -119,14 +141,15 @@ def main():
         "--image_path",
         image_path,
         "--ImageReader.camera_model",
-        "PINHOLE",
+        args.camera_model,
         "--ImageReader.single_camera_per_folder",
         "1",
     ]
     if run_command(cmd_feature) != 0:
         return
 
-    update_database_camera_model(database_path, camera_model, camera_config)
+    if camera_config:
+        update_database_camera_model(database_path, args.camera_model, camera_config)
 
     # --- 2. Feature Matching ---
     logger.info("\n--- Step 2: Feature Matching (with Camera Rig) ---")
@@ -176,20 +199,20 @@ def main():
     if run_command(cmd_mapper) != 0:
         return
 
-    # visualize the sparse model
-    logger.info("\n--- Step 4: Visualize Sparse Model ---")
-    cmd_visualizer = [
-        COLMAP_EXE,
-        "gui",
-        "--import_path",
-        sparse_path / "0",
-        "--database_path",
-        database_path,
-        "--image_path",
-        image_path,
-    ]
-    if run_command(cmd_visualizer) != 0:
-        return
+    # Visualize if requested
+    if args.visualize:
+        logger.info("\n--- Step 4: Visualize Sparse Model ---")
+        cmd_visualizer = [
+            COLMAP_EXE,
+            "gui",
+            "--import_path",
+            sparse_path / "0",
+            "--database_path",
+            database_path,
+            "--image_path",
+            image_path,
+        ]
+        run_command(cmd_visualizer)
 
 
 if __name__ == "__main__":

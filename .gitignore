@@ -5,3 +5,7 @@ data/*
 gradio_omni_converter.py
 .DS_Store
 process_pano_sfm.py
+build*
+.pytest_cache*
+*egg-info*
+run_rig_sfm.sh
