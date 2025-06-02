@@ -1,10 +1,12 @@
+import json
+import os
+import platform
 import subprocess
 from pathlib import Path
-import platform
-import json
+
 import numpy as np
-import os
 from loguru import logger
+
 
 def load_json_config(config_path):
     """Load JSON configuration file."""
@@ -50,9 +52,7 @@ def run_command(cmd_list):
         return -1
 
 
-def update_database_camera_model(
-    database_path, camera_model="PINHOLE", camera_config=None
-):
+def update_database_camera_model(database_path, camera_model="PINHOLE", camera_config=None):
     """Updates the camera model in the COLMAP database."""
     import sqlite3
 
@@ -87,18 +87,14 @@ def update_database_camera_model(
 
     conn.commit()
     conn.close()
-    logger.info(
-        f"Updated camera model to '{camera_model}' in database '{database_path}'."
-    )
+    logger.info(f"Updated camera model to '{camera_model}' in database '{database_path}'.")
 
 
 def main():
     """Main function to run the COLMAP pipeline with a camera rig."""
     image_path = WORKSPACE_PATH / "pinhole_images" / "images"
     rig_config_path = WORKSPACE_PATH / "pinhole_images" / "rig_config.json"
-    camera_config_path = (
-        WORKSPACE_PATH / "pinhole_images" / "camera_params.json"
-    )
+    camera_config_path = WORKSPACE_PATH / "pinhole_images" / "camera_params.json"
     database_path = WORKSPACE_PATH / "sfm" / "database.db"
     sparse_path = WORKSPACE_PATH / "sfm" / "sparse"
 
@@ -111,11 +107,7 @@ def main():
         return
 
     camera_model = "PINHOLE"  # COLMAP supported camera model
-    camera_config = (
-        load_json_config(camera_config_path)
-        if camera_config_path.exists()
-        else None
-    )
+    camera_config = load_json_config(camera_config_path) if camera_config_path.exists() else None
 
     # --- 1. Feature Extraction ---
     logger.info("--- Step 1: Feature Extraction ---")
@@ -194,9 +186,11 @@ def main():
         "--database_path",
         database_path,
         "--image_path",
-        image_path,]
+        image_path,
+    ]
     if run_command(cmd_visualizer) != 0:
         return
+
 
 if __name__ == "__main__":
     main()

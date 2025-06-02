@@ -1,8 +1,10 @@
-import gradio as gr
-from pathlib import Path
-from PIL import Image
-import cv2
 import time
+from pathlib import Path
+
+import cv2
+import gradio as gr
+from PIL import Image
+
 from .omni_processor import OmniVideoProcessor
 
 
@@ -101,12 +103,8 @@ class OmniConverterUI:
                     # View selection
                     with gr.Accordion("Custom View editions", open=False):
                         with gr.Row():
-                            custom_pitch = gr.Slider(
-                                -90, 90, value=0, label="Custom Pitch"
-                            )
-                            custom_yaw = gr.Slider(
-                                -180, 180, value=0, label="Custom Yaw"
-                            )
+                            custom_pitch = gr.Slider(-90, 90, value=0, label="Custom Pitch")
+                            custom_yaw = gr.Slider(-180, 180, value=0, label="Custom Yaw")
                         add_custom = gr.Button("Add Custom View")
 
                 with gr.Column():
@@ -187,6 +185,4 @@ class OmniConverterUI:
         ][: self.max_gallery_items]
         if not image_list_for_gallery:
             return gr.update(value=[], visible=False)
-        return gr.update(
-            columns=len(params_dict["views"]), value=image_list_for_gallery
-        )
+        return gr.update(columns=len(params_dict["views"]), value=image_list_for_gallery)

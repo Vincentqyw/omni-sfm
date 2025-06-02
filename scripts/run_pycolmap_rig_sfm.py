@@ -3,9 +3,10 @@ An example for running incremental SfM on 360 spherical panorama images.
 """
 
 import argparse
+import json
 import os
 from pathlib import Path
-import json
+
 import numpy as np
 import pycolmap
 from pycolmap import logging
@@ -44,9 +45,7 @@ def create_rig_config(
             cam_from_rig = None
         else:
             wxyz = params["cam_from_rig_rotation"]
-            cam_from_ref_rotation = pycolmap.Rotation3d(
-                [wxyz[1], wxyz[2], wxyz[3], wxyz[0]]
-            )
+            cam_from_ref_rotation = pycolmap.Rotation3d([wxyz[1], wxyz[2], wxyz[3], wxyz[0]])
             cam_from_rig = pycolmap.Rigid3d(cam_from_ref_rotation, np.zeros(3))
 
         rig_camera = pycolmap.RigConfigCamera(
@@ -77,10 +76,7 @@ def run(args: argparse.Namespace) -> None:
     input_camera_config = read_json_config(args.input_camera_config)
     input_rig_config = read_json_config(args.input_rig_config)
     rig_config = create_rig_config(input_rig_config, input_camera_config)
-    image_names = [
-        os.path.join(p["image_prefix"], p["image_name"])
-        for p in input_camera_config
-    ]
+    image_names = [os.path.join(p["image_prefix"], p["image_name"]) for p in input_camera_config]
     pycolmap.set_random_seed(0)
     pycolmap.extract_features(
         database_path,
@@ -96,9 +92,7 @@ def run(args: argparse.Namespace) -> None:
     if args.matcher == "sequential":
         pycolmap.match_sequential(
             database_path,
-            matching_options=pycolmap.SequentialMatchingOptions(
-                loop_detection=True
-            ),
+            matching_options=pycolmap.SequentialMatchingOptions(loop_detection=True),
         )
     elif args.matcher == "exhaustive":
         pycolmap.match_exhaustive(database_path)
@@ -115,9 +109,7 @@ def run(args: argparse.Namespace) -> None:
         ba_refine_principal_point=False,
         ba_refine_extra_params=False,
     )
-    recs = pycolmap.incremental_mapping(
-        database_path, input_image_path, rec_path, opts
-    )
+    recs = pycolmap.incremental_mapping(database_path, input_image_path, rec_path, opts)
     for idx, rec in recs.items():
         logging.info(f"#{idx} {rec.summary()}")
 

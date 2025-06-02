@@ -1,11 +1,12 @@
-import cv2
 import json
 from pathlib import Path
-from tqdm import tqdm
-import py360convert
+
+import cv2
 import numpy as np
+import py360convert
 import torch
 from scipy.spatial.transform import Rotation as R
+from tqdm import tqdm
 
 
 def compute_focal_length(image_size, fov_deg):
@@ -36,7 +37,8 @@ class OmniVideoProcessor:
             "pitch_-35_yaw_180": (-35, 180),
         },
     }
-    def __init__(self, params = {}):
+
+    def __init__(self, params={}):
         self.params = params if params else self.default_params.copy()
         self.ref_sensor = list(self.params["views"].keys())[0]
 
@@ -54,9 +56,7 @@ class OmniVideoProcessor:
                 raise IOError(f"Cannot open video file: {video_file}")
             pano_images = self._extract_frames(video, output_dir)
             video.release()
-        elif isinstance(video_or_path, torch.Tensor) or isinstance(
-            video_or_path, np.ndarray
-        ):
+        elif isinstance(video_or_path, torch.Tensor) or isinstance(video_or_path, np.ndarray):
             pano_images = self._extract_frames_torch(video_or_path)
         else:
             raise ValueError("video_or_path must be a string or Path object")
@@ -125,9 +125,7 @@ class OmniVideoProcessor:
                     }
                 )
 
-                pinhole_data.append(
-                    (pano_idx, view_name, pinhole_image, str(save_path))
-                )
+                pinhole_data.append((pano_idx, view_name, pinhole_image, str(save_path)))
 
                 is_ref = view_name == self.ref_sensor
                 cam_params = self._create_camera_params(
@@ -202,9 +200,7 @@ class OmniVideoProcessor:
 
         rig_cameras = []
         for image_prefix, params in camera_rig_params.items():
-            R_view_world = R.from_euler(
-                "yx", [params["yaw"], params["pitch"]], degrees=True
-            )
+            R_view_world = R.from_euler("yx", [params["yaw"], params["pitch"]], degrees=True)
             R_view_ref = R_view_world.inv() * R_ref_world  # Cam from Rig
 
             # Scipy quat (x,y,z,w) -> COLMAP quat (w,x,y,z)

@@ -1,10 +1,11 @@
 import os
 import sys
-import torch
-import numpy as np
-import cv2
-from PIL import Image
 from pathlib import Path
+
+import cv2
+import numpy as np
+import torch
+from PIL import Image
 
 try:
     from .omni_processor import OmniVideoProcessor
@@ -17,9 +18,10 @@ try:
     from .read_write_model import read_model
 except ImportError:
     print(
-        "Warning: omni_processor not found, some functionality may be limited",
+        "Warning: read_write_model not found, some functionality may be limited",
         file=sys.stderr,
     )
+
 
 class OmniParameterControls:
     @classmethod
@@ -129,9 +131,9 @@ class OmniVideoProcessorNode:
     CATEGORY = "Omnidirectional Video"
 
     def process_video(self, omni_video, omni_params):
-        from tempfile import gettempdir
         import tempfile
         import time
+        from tempfile import gettempdir
 
         # VideoFromFile
 
@@ -140,9 +142,7 @@ class OmniVideoProcessorNode:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         processor = OmniVideoProcessor(omni_params)
-        panoramic_frames, pinhole_images_data = processor.process_video(
-            omni_video, output_dir
-        )
+        panoramic_frames, pinhole_images_data = processor.process_video(omni_video, output_dir)
         result = {
             "output_dir": str(output_dir),
             "panoramic_frames": panoramic_frames,
@@ -276,9 +276,7 @@ class OmniPreviewNode:
             pass
         return img
 
-    def generate_preview(
-        self, show_type="input_frame", view_yaw=0.0, view_pitch=0.0, **kwargs
-    ):
+    def generate_preview(self, show_type="input_frame", view_yaw=0.0, view_pitch=0.0, **kwargs):
         blank_image = self._create_placeholder_preview("No Preview Available")
 
         def to_tensor(img):
@@ -332,11 +330,7 @@ class OmniAdvancedPreviewNode:
 
         if not images_to_process:
             blank_image = Image.new("RGB", (256, 256), "black")
-            return (
-                torch.from_numpy(np.array(blank_image).astype(np.float32) / 255.0)[
-                    None,
-                ],
-            )
+            return (torch.from_numpy(np.array(blank_image).astype(np.float32) / 255.0)[None,],)
 
         # 分页逻辑
         end_index = start_index + max_items_to_show
@@ -378,11 +372,7 @@ class OmniAdvancedPreviewNode:
 
         if not output_images:
             blank_image = Image.new("RGB", (256, 256), "black")
-            return (
-                torch.from_numpy(np.array(blank_image).astype(np.float32) / 255.0)[
-                    None,
-                ],
-            )
+            return (torch.from_numpy(np.array(blank_image).astype(np.float32) / 255.0)[None,],)
 
         return (torch.stack(output_images),)
 

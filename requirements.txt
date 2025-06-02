@@ -1,7 +1,7 @@
-Pillow
-numpy
 gradio
 loguru
-scipy
+numpy
 opencv-python
+Pillow
 py360convert
+scipy
