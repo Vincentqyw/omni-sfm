@@ -14,9 +14,7 @@ class OmniConverterUI:
 
     def create_interface(self):
         """Create Gradio interface"""
-        with gr.Blocks(
-            title="Omnidirectional Video to Pinhole Converter"
-        ) as demo:
+        with gr.Blocks(title="Omnidirectional Video to Pinhole Converter") as demo:
             gr.Markdown("## Omnidirectional Video to Pinhole Converter")
 
             with gr.Row():
@@ -115,9 +113,7 @@ class OmniConverterUI:
                     # Results display
                     output_gallery = gr.Gallery(
                         label="Generated Pinhole Images",
-                        columns=len(
-                            self.default_params["views"]
-                        ),  # Use initial value
+                        columns=len(self.default_params["views"]),  # Use initial value
                         object_fit="contain",
                         height="auto",
                     )
@@ -181,16 +177,13 @@ class OmniConverterUI:
 
         output_dir = Path.cwd() / "outputs" / time.strftime("%Y%m%d%H%M%S")
         output_dir.mkdir(parents=True, exist_ok=True)
-        pinhole_images = self.processor.process_video(
-            video_file.name, output_dir
-        )
-
+        pano_images, pinhole_images_data = self.processor.process_video(video_file.name, output_dir)
         image_list_for_gallery = [
             (
-                Image.fromarray(cv2.cvtColor(img[2], cv2.COLOR_BGR2RGB)),
-                f"Frame {img[0]}, View: {img[1]}",
+                Image.fromarray(cv2.cvtColor(img_info["image"], cv2.COLOR_BGR2RGB)),
+                "Frame {}, View: {}".format(img_info["pano_index"], img_info["view_name"]),
             )
-            for img in pinhole_images
+            for img_info in pinhole_images_data
         ][: self.max_gallery_items]
         if not image_list_for_gallery:
             return gr.update(value=[], visible=False)

@@ -17,9 +17,9 @@ WORKSPACE_PATH = Path("outputs/20250602010323")
 
 # Set COLMAP executable path
 if platform.system() == "Windows":
-    COLMAP_EXE = "colmap"  # or "path/to/COLMAP.bat"
+    COLMAP_EXE = "colmap"
 else:
-    COLMAP_EXE = "colmap"  # or "/path/to/colmap"
+    COLMAP_EXE = "colmap"
 
 
 def run_command(cmd_list):

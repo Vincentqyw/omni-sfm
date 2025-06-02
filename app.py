@@ -1,4 +1,4 @@
-from src.omni_ui import OmniConverterUI
+from src.gradio_ui import OmniConverterUI
 
 if __name__ == "__main__":
     ui = OmniConverterUI()

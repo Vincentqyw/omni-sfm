@@ -4,16 +4,9 @@ An example for running incremental SfM on 360 spherical panorama images.
 
 import argparse
 import os
-from collections.abc import Sequence
 from pathlib import Path
 import json
-import cv2
 import numpy as np
-import PIL.ExifTags
-import PIL.Image
-from scipy.spatial.transform import Rotation
-from tqdm import tqdm
-
 import pycolmap
 from pycolmap import logging
 
